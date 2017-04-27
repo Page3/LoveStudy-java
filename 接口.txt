@@ -1,0 +1,11 @@
+http://www.wspage3.com/LoveStudy/common?oprateType=getList
+	
+http://www.wspage3.com/LoveStudy/file?oprateType=getArticle&fid=fid
+http://www.wspage3.com/LoveStudy/file?oprateType=getArticles&school=school&college=college&course=course&time=time&signature=signature
+	
+http://www.wspage3.com/LoveStudy/user?oprateType=getFavourite&uid=uid&time=time&signature=signature
+http://www.wspage3.com/LoveStudy/user?oprateType=getUploaded&uid=uid&time=time&signature=signature
+http://www.wspage3.com/LoveStudy/user?oprateType=toggleFavourite&uid=uid&fid=fid&time=time&signature=signature
+http://www.wspage3.com/LoveStudy/user?oprateType=getUser&uid=uid&time=time&signature=signature
+	
+http://www.wspage3.com/LoveStudy/login
