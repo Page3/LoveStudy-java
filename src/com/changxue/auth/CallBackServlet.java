@@ -42,8 +42,10 @@ public class CallBackServlet extends HttpServlet {
 		request.setCharacterEncoding("UTF-8");
 		response.setCharacterEncoding("UTF-8");
 		
-		
+		//获取code
 		String code=request.getParameter("code");
+		
+		//通过code获取openID和access_token
 		String url="https://api.weixin.qq.com/sns/oauth2/access_token"
 				+ "?appid="+AuthUtil.APPID
 				+ "&secret="+AuthUtil.APPSECRET
@@ -53,21 +55,22 @@ public class CallBackServlet extends HttpServlet {
 		String openid=jsonObject.getString("openid");
 		String access_token=jsonObject.getString("access_token");
 		
+		//通过openID和access_token获取用户信息
 		String getUserInfoUrl="https://api.weixin.qq.com/sns/userinfo"
 				+ "?access_token="+access_token
 				+ "&openid="+openid
 				+ "&lang=zh_CN";
 		JSONObject userInfo=AuthUtil.doGetJson(getUserInfoUrl);
-		System.out.println("++++++++++"+userInfo);
-		String stringJson=new String(userInfo.toString().getBytes(), "UTF-8");
 		
+		System.out.println("++++++++++"+userInfo);
+		
+		String stringJson=new String(userInfo.toString().getBytes(), "UTF-8");
 		response.setContentType("text/html; charset=utf-8");
 		PrintWriter pw=response.getWriter();
 		pw.write(stringJson); 
 		System.out.println("__________"+stringJson);
 		
-		
-		
+		//将获取到的用户信息封装到usermodel中
 		UserModel userModel=new UserModel(); 
 		userModel.setOpenid(openid);
 		userModel.setNickname(userInfo.getString("nickname"));
@@ -80,7 +83,7 @@ public class CallBackServlet extends HttpServlet {
 		userModel.setCountry(userInfo.getString("country"));
 		userModel.setHeadimgurl(userInfo.getString("headimgurl"));
 		
-		
+		//将用户信息存放到数据库
 		SqlSession sqlSession = DBConnector.connectMybatis();
 		UserMapper userMapper = sqlSession.getMapper(UserMapper.class);
 		
@@ -105,17 +108,16 @@ public class CallBackServlet extends HttpServlet {
 		}
 		
 		String s1 = "http://";
-		String s2 = "myths.mythsman.com:3000/nav/"+userModel.getOpenid();
-		String time = Long.toString(new Date().getTime());
-		String code1 = Long.toString(new Date().getTime()*2+1);
+		String s2 = "myths.mythsman.com/login/"+userModel.getOpenid();
+		Long ltime = new Date().getTime();
+		String time = Long.toString(ltime);
+		String code1 = Long.toString(ltime*2+1);
 		String code2 = s2+code1;
 		String signature = MD5.md5(code2);
 		
 		String clientUrl = s1+s2+"/"+time+"/"+signature;
 		response.sendRedirect(clientUrl);
 		
-//		request.setAttribute("user", userModel);
-//		request.getRequestDispatcher("/myInfo.jsp").forward(request, response);
 	}
 
 	/**

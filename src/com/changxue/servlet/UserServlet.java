@@ -3,7 +3,9 @@ package com.changxue.servlet;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -25,6 +27,7 @@ import com.changxue.model.UserExample;
 import com.changxue.model.File;
 import com.changxue.model.MyCollection;
 import com.changxue.model.MyCollectionExample;
+import com.changxue.util.CheckURL;
 import com.changxue.util.DBConnector;
 import com.google.gson.Gson;
 
@@ -55,6 +58,19 @@ public class UserServlet extends HttpServlet {
 		if("getFavourite".equals(oprateType)){
 			
 			String uid = request.getParameter("uid");
+			String time = request.getParameter("time");
+			String signature = request.getParameter("signature");
+			
+			//验证url的有效性
+			String thisUrl = "www.wspage3.com/LoveStudy/user?oprateType=getFavourite"+"&uid="+uid;
+			if(CheckURL.checkurl(thisUrl, time, signature)==false){
+				Map<String, Object> map = new HashMap<String, Object>();
+				map.put("code", 404);
+				Gson gson = new Gson();
+				PrintWriter pw = response.getWriter();
+				pw.write(gson.toJson(map));
+				return ;
+			}
 			
 			SqlSession sqlSession = DBConnector.connectMybatis();
 			MyCollectionMapper myCollectionMapper = sqlSession.getMapper(MyCollectionMapper.class);
@@ -74,15 +90,27 @@ public class UserServlet extends HttpServlet {
 			}
 			
 			Gson gson = new Gson();
-			
 			PrintWriter pw = response.getWriter();
 			pw.write(gson.toJson(files));
-			
+			sqlSession.close();
 			return ;
 			
 		}else if("getUploaded".equals(oprateType)){
 			
 			String uid = request.getParameter("uid");
+			String time = request.getParameter("time");
+			String signature = request.getParameter("signature");
+			
+			//验证url的有效性
+			String thisUrl = "www.wspage3.com/LoveStudy/user?oprateType=getUploaded"+"&uid="+uid;
+			if(CheckURL.checkurl(thisUrl, time, signature)==false){
+				Map<String, Object> map = new HashMap<String, Object>();
+				map.put("code", 404);
+				Gson gson = new Gson();
+				PrintWriter pw = response.getWriter();
+				pw.write(gson.toJson(map));
+				return ;
+			}
 			
 			SqlSession sqlSession = DBConnector.connectMybatis();
 			MyUploadedMapper myUploadedMapper = sqlSession.getMapper(MyUploadedMapper.class);
@@ -102,16 +130,29 @@ public class UserServlet extends HttpServlet {
 			}
 			
 			Gson gson = new Gson();
-			
 			PrintWriter pw = response.getWriter();
 			pw.write(gson.toJson(files));
-			
+			sqlSession.close();
 			return ;
 			
 		}else if("toggleFavourite".equals(oprateType)){
 			
 			String uid = request.getParameter("uid");
 			String fid = request.getParameter("fid");
+			String time = request.getParameter("time");
+			String signature = request.getParameter("signature");
+			
+			//验证url的有效性
+			String thisUrl = "www.wspage3.com/LoveStudy/user?oprateType=toggleFavourite"+"&uid="+uid+"&fid="+fid;
+			if(CheckURL.checkurl(thisUrl, time, signature)==false){
+				Map<String, Object> map = new HashMap<String, Object>();
+				map.put("code", 404);
+				Gson gson = new Gson();
+				PrintWriter pw = response.getWriter();
+				pw.write(gson.toJson(map));
+				return ;
+			}
+			
 			
 			SqlSession sqlSession = DBConnector.connectMybatis();
 			MyCollectionMapper myCollectionMapper = sqlSession.getMapper(MyCollectionMapper.class);
@@ -131,10 +172,9 @@ public class UserServlet extends HttpServlet {
 				sqlSession.commit();
 				
 				Gson gson = new Gson();
-				
 				PrintWriter pw = response.getWriter();
 				pw.write(gson.toJson("收藏成功"));
-				
+				sqlSession.close();
 				return ;
 			
 			}else{
@@ -143,16 +183,28 @@ public class UserServlet extends HttpServlet {
 				sqlSession.commit();
 				
 				Gson gson = new Gson();
-				
 				PrintWriter pw = response.getWriter();
 				pw.write(gson.toJson("取消收藏成功"));
-				
+				sqlSession.close();
 				return ;
 			}
 			
 		}else if("getUser".equals(oprateType)){
 			
 			String uid = request.getParameter("uid");
+			String time = request.getParameter("time");
+			String signature = request.getParameter("signature");
+			
+			//验证url的有效性
+			String thisUrl = "www.wspage3.com/LoveStudy/user?oprateType=getUser"+"&uid="+uid;
+			if(CheckURL.checkurl(thisUrl, time, signature)==false){
+				Map<String, Object> map = new HashMap<String, Object>();
+				map.put("code", 404);
+				Gson gson = new Gson();
+				PrintWriter pw = response.getWriter();
+				pw.write(gson.toJson(map));
+				return ;
+			}
 			
 			SqlSession sqlSession = DBConnector.connectMybatis();
 			UserMapper userMapper = sqlSession.getMapper(UserMapper.class);
@@ -160,10 +212,9 @@ public class UserServlet extends HttpServlet {
 			User user = userMapper.selectByPrimaryKey(uid);
 			
 			Gson gson = new Gson();
-			
 			PrintWriter pw = response.getWriter();
 			pw.write(gson.toJson(user));
-			
+			sqlSession.close();
 			return ;
 		}
 		

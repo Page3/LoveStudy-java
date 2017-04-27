@@ -46,95 +46,103 @@ public class CommonServlet extends HttpServlet {
 		request.setCharacterEncoding("UTF-8");
 		response.setCharacterEncoding("UTF-8");
 		
-		SqlSession sqlSession = DBConnector.connectMybatis();
-		CourseMapper courseMapper = sqlSession.getMapper(CourseMapper.class);
+		String oprateType=request.getParameter("oprateType");
 		
-		CourseExample example1 = new CourseExample();
-		Criteria criteria1 = example1.createCriteria();
-		criteria1.andSchoolIsNotNull();
-		List<Course> list = courseMapper.selectByExample(example1);
-		
-		List<Map<String, Object>> result1 = new ArrayList<>();
-		List<String> schools = new ArrayList<String>();
-		for(Course temp:list)
-		{
-			String school = temp.getSchool();
-			schools.add(school);
-		}
-		HashSet h = new HashSet(schools);
-		schools.clear();
-		schools.addAll(h);
-		
-		//分别考察每个学校(一个map)，构造结果(map数组)
-		for(String school:schools)
-		{
-			CourseExample example2 = new CourseExample();
-			Criteria criteria2 = example2.createCriteria();
-			criteria2.andSchoolEqualTo(school);
-			List<Course> list2 = courseMapper.selectByExample(example2);
+		if(oprateType.equals("getList")){
+			SqlSession sqlSession = DBConnector.connectMybatis();
+			CourseMapper courseMapper = sqlSession.getMapper(CourseMapper.class);
 			
-			List<Map<String, Object>> result2 = new ArrayList<>();
-			List<String> colleges = new ArrayList<>();
+			//查询到course表的所有数据，放在list中，之后对其进行处理
+			CourseExample example1 = new CourseExample();
+			Criteria criteria1 = example1.createCriteria();
+			criteria1.andSchoolIsNotNull();
+			List<Course> list = courseMapper.selectByExample(example1);
 			
-			for(Course temp2:list2)
+			//存在学校相关的信息
+			List<Map<String, Object>> result1 = new ArrayList<>();
+			List<String> schools = new ArrayList<String>();
+			for(Course temp:list)
 			{
-				String college = temp2.getCollege();
-				colleges.add(college);
+				String school = temp.getSchool();
+				schools.add(school);
 			}
-			HashSet h2 = new HashSet(colleges);
-			colleges.clear();
-			colleges.addAll(h2);
+			HashSet h = new HashSet(schools);
+			schools.clear();
+			schools.addAll(h);
 			
-			//分别考察当前学校下的每一个学院（一个map），构造结果（map数组）
-			for(String college:colleges)
+			//分别考察每个学校(一个map)，构造结果(map数组)
+			for(String school:schools)
 			{
-				CourseExample example3 = new CourseExample();
-				Criteria criteria3 = example3.createCriteria();
-				criteria3.andSchoolEqualTo(school);
-				criteria3.andCollegeEqualTo(college);
-				List<Course> list3 = courseMapper.selectByExample(example3);
+				CourseExample example2 = new CourseExample();
+				Criteria criteria2 = example2.createCriteria();
+				criteria2.andSchoolEqualTo(school);
+				List<Course> list2 = courseMapper.selectByExample(example2);
 				
-				List<Map<String, Object>> result3 = new ArrayList();
-				List<String> courses = new ArrayList();
+				//存放学院相关的信息
+				List<Map<String, Object>> result2 = new ArrayList<>();
+				List<String> colleges = new ArrayList<>();
 				
-				for(Course temp3:list3)
+				for(Course temp2:list2)
 				{
-					String course = temp3.getCourse();
-					courses.add(course);
+					String college = temp2.getCollege();
+					colleges.add(college);
 				}
-				HashSet h3 = new HashSet(courses);
-				courses.clear();
-				courses.addAll(h3);
+				HashSet h2 = new HashSet(colleges);
+				colleges.clear();
+				colleges.addAll(h2);
 				
-				//分别考察当前学院下的每一个课程（一个map），构造结果（map数组）
-				for(String course:courses)
+				//分别考察当前学校下的每一个学院（一个map），构造结果（map数组）
+				for(String college:colleges)
 				{
+					CourseExample example3 = new CourseExample();
+					Criteria criteria3 = example3.createCriteria();
+					criteria3.andSchoolEqualTo(school);
+					criteria3.andCollegeEqualTo(college);
+					List<Course> list3 = courseMapper.selectByExample(example3);
+					
+					//存放课程相关的信息
+					List<Map<String, Object>> result3 = new ArrayList();
+					List<String> courses = new ArrayList();
+					
+					for(Course temp3:list3)
+					{
+						String course = temp3.getCourse();
+						courses.add(course);
+					}
+					HashSet h3 = new HashSet(courses);
+					courses.clear();
+					courses.addAll(h3);
+					
+					//分别考察当前学院下的每一个课程（一个map），构造结果（map数组）
+					for(String course:courses)
+					{
+						Map<String, Object> map = new HashMap<String, Object>();
+						map.put("name", course);
+						result3.add(map);
+					}
+					
 					Map<String, Object> map = new HashMap<String, Object>();
-					map.put("name", course);
-					result3.add(map);
+					map.put("name", college);
+					map.put("courses", result3);
+					
+					result2.add(map);
 				}
+				
 				
 				Map<String, Object> map = new HashMap<String, Object>();
-				map.put("name", college);
-				map.put("courses", result3);
+				map.put("name", school);
+				map.put("colleges", result2);
 				
-				result2.add(map);
+				result1.add(map);
 			}
 			
+			Gson gson = new Gson();
+			PrintWriter pw = response.getWriter();
+			pw.write(gson.toJson(result1));
 			
-			Map<String, Object> map = new HashMap<String, Object>();
-			map.put("name", school);
-			map.put("colleges", result2);
-			
-			result1.add(map);
+			sqlSession.close();
 		}
 		
-		Gson gson = new Gson();
-		
-		PrintWriter pw = response.getWriter();
-		pw.write(gson.toJson(result1));
-		
-		//System.out.println(gson.toJson(result1));
 	}
 
 	/**
